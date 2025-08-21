@@ -10,9 +10,9 @@ pipeline {
         
         DOCKER_IMAGE_NAME = "curtbrink/${env.REPO_NAME}:v${env.VERSION}";
 
-        PROD_PRINTER_HOST = credentials('prod-printer-host');
-        PROD_PRINTER_PORT = credentials('prod-printer-port');
-        PROD_SECRET_KEY = credentials('prod-secret-key');
+        PRINTER_HOST = credentials('prod-printer-host');
+        PRINTER_PORT = credentials('prod-printer-port');
+        SECRET_KEY = credentials('prod-secret-key');
     }
 
     stages {
@@ -63,7 +63,7 @@ pipeline {
             steps {
                 script {
                     // recreate container with new image
-                    sh "docker run -d -p 34200:8080 --name ${env.REPO_NAME} ${env.DOCKER_IMAGE_NAME}"
+                    sh "docker run -d -p 34201:8080 -e PRINTER_HOST -e PRINTER_PORT -e SECRET_KEY --name ${env.REPO_NAME} ${env.DOCKER_IMAGE_NAME}"
                 }
             }
         }
