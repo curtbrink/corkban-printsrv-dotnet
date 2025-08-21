@@ -12,9 +12,19 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="..\.dockerignore">
-        <Link>.dockerignore</Link>
-      </Content>
+        <Content Include="..\.dockerignore">
+            <Link>.dockerignore</Link>
+        </Content>
+    </ItemGroup>
+    <ItemGroup>
+        <Content Include="..\Dockerfile">
+            <Link>Dockerfile</Link>
+        </Content>
+    </ItemGroup>
+    <ItemGroup>
+        <Content Include="..\Jenkinsfile">
+            <Link>Jenkinsfile</Link>
+        </Content>
     </ItemGroup>
 
 </Project>
