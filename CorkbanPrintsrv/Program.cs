@@ -1,5 +1,7 @@
 using CorkbanPrintsrv.Configuration;
+using CorkbanPrintsrv.DTOs;
 using CorkbanPrintsrv.Services;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +13,7 @@ builder.Services.Configure<PrinterConfiguration>(builder.Configuration.GetSectio
 
 // Add services to the container.
 builder.Services.AddSingleton<IPrinterProvider, PrinterProvider>();
+builder.Services.AddSingleton<IPrinterService, PrinterService>();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -23,9 +26,18 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.MapGet("/test", async (IPrinterProvider printerProvider) =>
+app.MapPost("/print-text", async ([FromBody] PrintTextRequest request, IPrinterService printerService) =>
 {
-    await printerProvider.TestPrinter();
-}).WithName("GetTest");
+    await printerService.PrintTextAsync(request.Text);
+}).WithName("PrintText");
 
+app.MapPost("/print-image", async ([FromBody] PrintImageRequest request, IPrinterService printerService) =>
+{
+    await printerService.PrintImageAsync(request.ImageData);
+}).WithName("PrintImage");
+
+app.MapGet("/test-image", async (IPrinterService printerService) =>
+{
+    await printerService.PrintTestImageAsync();
+}).WithName("TestImage");
 app.Run();
