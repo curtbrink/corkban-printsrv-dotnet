@@ -7,13 +7,13 @@ namespace CorkbanPrintsrv.Services;
 
 public interface IPrinterProvider
 {
-    Task TestPrinter();
+    Task PrintAsync(byte[] payload);
 }
 
 public class PrinterProvider : IPrinterProvider
 {
     private readonly ImmediateNetworkPrinter _printer;
-    
+
     public PrinterProvider(IOptions<PrinterConfiguration> options)
     {
         var config = options.Value;
@@ -24,17 +24,15 @@ public class PrinterProvider : IPrinterProvider
             { ConnectionString = $"{config.Hostname}:{config.Port}", PrinterName = "CorkbanPrinter" });
     }
 
-    public async Task TestPrinter()
+    public async Task PrintAsync(byte[] payload)
     {
-        var command = PrinterCommandBuilder.New()
-            .CenterAlign()
-            .PrintLine("TEST TEST TEST")
-            .FeedLines(2)
-            .PrintLine("UWU UWU UWU UWU")
+        var wrappedCommand = PrinterCommandBuilder.New()
+            .Initialize()
+            .Append(payload)
             .Append(GetEndingCommands())
             .Build();
 
-        await _printer.WriteAsync(command);
+        await _printer.WriteAsync(wrappedCommand);
     }
 
     private static byte[] GetEndingCommands()

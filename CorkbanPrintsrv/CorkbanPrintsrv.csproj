@@ -8,9 +8,22 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="ESCPOS_NET" Version="3.0.0" />
+        <PackageReference Include="ESCPOS_NET" Version="3.0.0"/>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.8"/>
     </ItemGroup>
+
+    <Choose>
+        <When Condition="'$(CORKBAN_ENV)'=='production'">
+            <ItemGroup>
+                <PackageReference Include="Magick.NET-Q8-x64" Version="14.8.0"/>
+            </ItemGroup>
+        </When>
+        <Otherwise>
+            <ItemGroup>
+                <PackageReference Include="Magick.NET-Q8-AnyCPU" Version="14.8.0"/>
+            </ItemGroup>
+        </Otherwise>
+    </Choose>
 
     <ItemGroup>
         <Content Include="..\.dockerignore">
