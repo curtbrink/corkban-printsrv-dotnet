@@ -8,26 +8,30 @@ public class PrinterCommandBuilder
     private readonly List<byte[]> _commands;
     private readonly EPSON _epson;
 
-    public static PrinterCommandBuilder New()
+    private PrinterCommandBuilder() : this(new EPSON(), [])
     {
-        return new PrinterCommandBuilder();
-    }
-    
-    public static PrinterCommandBuilder New(byte[] startingCommands)
-    {
-        return new PrinterCommandBuilder([startingCommands]);
     }
 
-    private PrinterCommandBuilder() : this(new EPSON(), []) {}
-
-    private PrinterCommandBuilder(List<byte[]> startingCommands) : this(new EPSON(), startingCommands) {}
+    private PrinterCommandBuilder(List<byte[]> startingCommands) : this(new EPSON(), startingCommands)
+    {
+    }
 
     private PrinterCommandBuilder(EPSON epson, List<byte[]> commands)
     {
         _epson = epson;
         _commands = commands;
     }
-    
+
+    public static PrinterCommandBuilder New()
+    {
+        return new PrinterCommandBuilder();
+    }
+
+    public static PrinterCommandBuilder New(byte[] startingCommands)
+    {
+        return new PrinterCommandBuilder([startingCommands]);
+    }
+
     public PrinterCommandBuilder Append(byte[] bytes)
     {
         _commands.Add(bytes);
@@ -38,7 +42,7 @@ public class PrinterCommandBuilder
     {
         return ByteSplicer.Combine(_commands.ToArray());
     }
-    
+
     /*
      * Everything below this line is builder methods for commands that the EPSON class provides.
      */
@@ -183,7 +187,8 @@ public class PrinterCommandBuilder
         return Append(_epson.WriteImageFromBuffer());
     }
 
-    public PrinterCommandBuilder PrintImage(byte[] image, bool isHiDpi, bool isLegacy = false, int maxWidth = -1, int color = 1)
+    public PrinterCommandBuilder PrintImage(byte[] image, bool isHiDpi, bool isLegacy = false, int maxWidth = -1,
+        int color = 1)
     {
         return Append(_epson.PrintImage(image, isHiDpi, isLegacy, maxWidth, color));
     }
@@ -233,13 +238,15 @@ public class PrinterCommandBuilder
         return Append(_epson.PrintBarcode(type, barcode, code));
     }
 
-    public PrinterCommandBuilder PrintQrCode(string data, TwoDimensionCodeType type = TwoDimensionCodeType.QRCODE_MODEL2, Size2DCode size = Size2DCode.NORMAL,
+    public PrinterCommandBuilder PrintQrCode(string data,
+        TwoDimensionCodeType type = TwoDimensionCodeType.QRCODE_MODEL2, Size2DCode size = Size2DCode.NORMAL,
         CorrectionLevel2DCode correction = CorrectionLevel2DCode.PERCENT_7)
     {
         return Append(_epson.PrintQRCode(data, type, size, correction));
     }
 
-    public PrinterCommandBuilder Print2DCode(TwoDimensionCodeType type, string data, Size2DCode size = Size2DCode.NORMAL,
+    public PrinterCommandBuilder Print2DCode(TwoDimensionCodeType type, string data,
+        Size2DCode size = Size2DCode.NORMAL,
         CorrectionLevel2DCode correction = CorrectionLevel2DCode.PERCENT_7)
     {
         return Append(_epson.Print2DCode(type, data, size, correction));

@@ -13,7 +13,7 @@ public interface IPrinterProvider
 public class PrinterProvider : IPrinterProvider
 {
     private readonly ImmediateNetworkPrinter _printer;
-    
+
     public PrinterProvider(IOptions<PrinterConfiguration> options)
     {
         var config = options.Value;

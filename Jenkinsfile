@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         BRANCH_NAME = "${env.BRANCH_NAME}";
+        CORKBAN_ENV = "production";
         
         // todo: grab these from a different file
         REPO_NAME = "corkban-printsrv-dotnet";

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration.AddJsonFile("secrets.json", optional: true, reloadOnChange: true);
+builder.Configuration.AddJsonFile("secrets.json", true, true);
 builder.Configuration.AddEnvironmentVariables();
 
 // config
@@ -13,7 +13,8 @@ builder.Services.Configure<PrinterConfiguration>(builder.Configuration.GetSectio
 
 // Add services to the container.
 builder.Services.AddSingleton<IPrinterProvider, PrinterProvider>();
-builder.Services.AddSingleton<IPrinterService, PrinterService>();
+builder.Services.AddScoped<IPrinterService, PrinterService>();
+builder.Services.AddScoped<IImageService, ImageService>();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -21,23 +22,18 @@ builder.Services.AddOpenApi();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
+if (app.Environment.IsDevelopment()) app.MapOpenApi();
 
-app.MapPost("/print-text", async ([FromBody] PrintTextRequest request, IPrinterService printerService) =>
-{
-    await printerService.PrintTextAsync(request.Text);
-}).WithName("PrintText");
+app.MapPost("/print-text",
+    async ([FromBody] PrintTextRequest request, IPrinterService printerService) =>
+    {
+        await printerService.PrintTextAsync(request.Text);
+    }).WithName("PrintText");
 
-app.MapPost("/print-image", async ([FromBody] PrintImageRequest request, IPrinterService printerService) =>
-{
-    await printerService.PrintImageAsync(request.ImageData);
-}).WithName("PrintImage");
+app.MapPost("/print-image",
+    async ([FromBody] PrintImageRequest request, IPrinterService printerService) =>
+    {
+        await printerService.PrintImageAsync(request.ImageData);
+    }).WithName("PrintImage");
 
-app.MapGet("/test-image", async (IPrinterService printerService) =>
-{
-    await printerService.PrintTestImageAsync();
-}).WithName("TestImage");
 app.Run();
