@@ -6,3 +6,4 @@ riderModule.iml
 .idea/
 secrets.json
 *.DotSettings.user
+*.sqlite

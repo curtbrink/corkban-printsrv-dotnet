@@ -1,7 +1,10 @@
 using CorkbanPrintsrv.Auth;
 using CorkbanPrintsrv.Configuration;
 using CorkbanPrintsrv.DTOs;
+using CorkbanPrintsrv.Infrastructure;
+using CorkbanPrintsrv.Jobs;
 using CorkbanPrintsrv.Services;
+using CorkbanPrintsrv.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,11 +15,22 @@ builder.Configuration.AddEnvironmentVariables();
 
 // config
 builder.Services.Configure<PrinterConfiguration>(builder.Configuration.GetSection(PrinterConfiguration.SectionName));
+builder.Services.Configure<QueueConfiguration>(builder.Configuration.GetSection(QueueConfiguration.SectionName));
 
-// Add services to the container.
+// initialize the sqlite provider immediately
+var queueConfig = builder.Configuration.GetSection(QueueConfiguration.SectionName).Get<QueueConfiguration>();
+if (string.IsNullOrWhiteSpace(queueConfig?.FilePath)) throw new ArgumentNullException(nameof(queueConfig.FilePath));
+var sqliteProvider = new SqliteProvider(queueConfig);
+await sqliteProvider.InitializeAsync();
+builder.Services.AddSingleton<ISqliteProvider>(sqliteProvider);
+
+// Add other services to the container.
 builder.Services.AddSingleton<IPrinterProvider, PrinterProvider>();
 builder.Services.AddScoped<IPrinterService, PrinterService>();
 builder.Services.AddScoped<IImageService, ImageService>();
+
+// Add jobs.
+builder.Services.AddHostedService<RetryJob>();
 
 builder.Services.AddAuthentication(ApiKeyAuthenticationSchemeOptions.DefaultScheme)
     .AddScheme<ApiKeyAuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(
@@ -47,5 +61,25 @@ app.MapPost("/print-image",
         await printerService.PrintImageAsync(request.ImageData);
         return Results.Ok();
     }).WithName("PrintImage");
+
+app.MapGet("/test-db", async (ISqliteProvider sqlite) =>
+{
+    var testcmd = PrinterCommandBuilder.New().CenterAlign().PrintLine("This is a test, yo").PrintLine("Second line")
+        .FeedLines(2).PartialCut().Build();
+    Console.WriteLine(string.Join(", ", testcmd));
+
+    var stored = await sqlite.CreateItem(testcmd);
+    Console.WriteLine(string.Join(", ", stored.Data!));
+
+    try
+    {
+        var queried = await sqlite.GetItem(stored.Id);
+        Console.WriteLine(string.Join(", ", queried.Data!));
+    }
+    catch (KeyNotFoundException e)
+    {
+        Console.WriteLine(e.Message);
+    }
+}).WithName("TestDbInsertion");
 
 app.Run();

@@ -3,7 +3,7 @@ using CorkbanPrintsrv.Utils;
 using ESCPOS_NET;
 using Microsoft.Extensions.Options;
 
-namespace CorkbanPrintsrv.Services;
+namespace CorkbanPrintsrv.Infrastructure;
 
 public interface IPrinterProvider
 {

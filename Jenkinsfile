@@ -64,7 +64,7 @@ pipeline {
             steps {
                 script {
                     // recreate container with new image
-                    sh "docker run -d -p 34201:8080 -e Printer__Hostname -e Printer__Port -e Printer__SecretKey --name ${env.REPO_NAME} ${env.DOCKER_IMAGE_NAME}"
+                    sh "docker run -d -p 34201:8080 -e Printer__Hostname -e Printer__Port -e Printer__SecretKey --mount type=volume,src=corkban-db,dst=/db --name ${env.REPO_NAME} ${env.DOCKER_IMAGE_NAME}"
                 }
             }
         }
