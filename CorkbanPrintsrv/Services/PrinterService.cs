@@ -38,13 +38,11 @@ public class PrinterService(IPrinterProvider printerProvider, IImageService imag
         try
         {
             await printerProvider.PrintAsync(payload);
+            await sqliteProvider.CompleteItem(printJob.Id);
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
-            return; // we'll retry this job later
+            await sqliteProvider.UpdateItemMessage(printJob.Id, ex.Message);
         }
-
-        await sqliteProvider.CompleteItem(printJob.Id);
     }
 }

@@ -8,14 +8,15 @@ public static class SqliteCommands
            id TEXT PRIMARY KEY,
            created_timestamp TEXT NOT NULL,
            completed_timestamp TEXT,
+           status TEXT,
            data BLOB
         );
         """;
 
     public const string CreateQueueItem =
         """
-        INSERT INTO print_queue (id, created_timestamp, completed_timestamp, data)
-        VALUES ($id, $createdTimestamp, $completedTimestamp, $data);
+        INSERT INTO print_queue (id, created_timestamp, completed_timestamp, status, data)
+        VALUES ($id, $createdTimestamp, $completedTimestamp, $status, $data);
         """;
 
     public const string QueryItemById =
@@ -29,6 +30,13 @@ public static class SqliteCommands
         """
         UPDATE print_queue
         SET completed_timestamp = $completedTimestamp
+        WHERE id = $id;
+        """;
+
+    public const string UpdateMessageById =
+        """
+        UPDATE print_queue
+        SET status = $status
         WHERE id = $id;
         """;
 }

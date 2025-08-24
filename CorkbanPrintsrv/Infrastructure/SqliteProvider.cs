@@ -13,6 +13,8 @@ public interface ISqliteProvider
     Task<PrintQueueItem> GetItem(string itemId);
 
     Task CompleteItem(string itemId);
+
+    Task UpdateItemMessage(string itemId, string statusMessage);
     // Task<List<PrintQueueItem>> GetIncompleteItems();
 }
 
@@ -45,6 +47,7 @@ public class SqliteProvider(QueueConfiguration queueConfig) : ISqliteProvider
         command.Parameters.AddWithValue("$id", item.Id);
         command.Parameters.AddWithValue("$createdTimestamp", item.CreatedTimestamp);
         command.Parameters.AddWithValue("$completedTimestamp", DBNull.Value);
+        command.Parameters.AddWithValue("$status", DBNull.Value);
         command.Parameters.AddWithValue("$data", item.Data);
 
         using (await _lock.LockAsync())
@@ -74,6 +77,15 @@ public class SqliteProvider(QueueConfiguration queueConfig) : ISqliteProvider
         var command = new SqliteCommand(SqliteCommands.CompleteItemById);
         command.Parameters.AddWithValue("$id", itemId);
         command.Parameters.AddWithValue("$completedTimestamp", DateTime.UtcNow);
+        
+        await ExecuteNonQueryAsync(command);
+    }
+
+    public async Task UpdateItemMessage(string itemId, string statusMessage)
+    {
+        var command = new SqliteCommand(SqliteCommands.UpdateMessageById);
+        command.Parameters.AddWithValue("$id", itemId);
+        command.Parameters.AddWithValue("$status", statusMessage);
         
         await ExecuteNonQueryAsync(command);
     }
@@ -123,7 +135,8 @@ public class SqliteProvider(QueueConfiguration queueConfig) : ISqliteProvider
                 Id = reader.GetString(0),
                 CreatedTimestamp = reader.GetDateTime(1),
                 CompletedTimestamp = reader.IsDBNull(2) ? null : reader.GetDateTime(2),
-                Data = GetBytes(reader, 3)
+                Status = reader.IsDBNull(3) ? null : reader.GetString(3),
+                Data = GetBytes(reader, 4)
             });
         }
 

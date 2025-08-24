@@ -8,5 +8,7 @@ public class PrintQueueItem
     
     public DateTime? CompletedTimestamp { get; set; }
     
+    public string? Status { get; set; }
+    
     public byte[]? Data { get; set; }
 }
