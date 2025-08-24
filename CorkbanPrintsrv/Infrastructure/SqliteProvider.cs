@@ -11,9 +11,9 @@ public interface ISqliteProvider
     Task<PrintQueueItem> CreateItem(byte[] data);
 
     Task<PrintQueueItem> GetItem(string itemId);
+
+    Task CompleteItem(string itemId);
     // Task<List<PrintQueueItem>> GetIncompleteItems();
-    // Task CompleteItem(string itemId);
-    // Task DeleteItem(string itemId);
 }
 
 public class SqliteProvider(QueueConfiguration queueConfig) : ISqliteProvider
@@ -67,6 +67,15 @@ public class SqliteProvider(QueueConfiguration queueConfig) : ISqliteProvider
         }
         
         return results.Count > 0 ? results[0] : throw new KeyNotFoundException($"Item with id {itemId} not found");
+    }
+
+    public async Task CompleteItem(string itemId)
+    {
+        var command = new SqliteCommand(SqliteCommands.CompleteItemById);
+        command.Parameters.AddWithValue("$id", itemId);
+        command.Parameters.AddWithValue("$completedTimestamp", DateTime.UtcNow);
+        
+        await ExecuteNonQueryAsync(command);
     }
 
     private async Task<SqliteConnection> OpenConnectionAsync()

@@ -24,4 +24,11 @@ public static class SqliteCommands
         FROM print_queue
         WHERE id = $id;
         """;
+
+    public const string CompleteItemById =
+        """
+        UPDATE print_queue
+        SET completed_timestamp = $completedTimestamp
+        WHERE id = $id;
+        """;
 }

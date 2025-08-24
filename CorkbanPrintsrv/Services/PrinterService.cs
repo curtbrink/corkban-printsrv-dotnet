@@ -9,7 +9,7 @@ public interface IPrinterService
     Task PrintImageAsync(string base64Image);
 }
 
-public class PrinterService(IPrinterProvider printerProvider, IImageService imageService) : IPrinterService
+public class PrinterService(IPrinterProvider printerProvider, IImageService imageService, ISqliteProvider sqliteProvider) : IPrinterService
 {
     public async Task PrintTextAsync(string text)
     {
@@ -17,7 +17,7 @@ public class PrinterService(IPrinterProvider printerProvider, IImageService imag
             .CenterAlign()
             .PrintLine(text)
             .Build();
-        await printerProvider.PrintAsync(printTextCommand);
+        await ExecutePrintJob(printTextCommand);
     }
 
     public async Task PrintImageAsync(string base64Image)
@@ -28,6 +28,23 @@ public class PrinterService(IPrinterProvider printerProvider, IImageService imag
             .PrintImage(image, true, true)
             .Build();
 
-        await printerProvider.PrintAsync(printImageCommand);
+        await ExecutePrintJob(printImageCommand);
+    }
+
+    private async Task ExecutePrintJob(byte[] payload)
+    {
+        var printJob = await sqliteProvider.CreateItem(payload);
+
+        try
+        {
+            await printerProvider.PrintAsync(payload);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return; // we'll retry this job later
+        }
+
+        await sqliteProvider.CompleteItem(printJob.Id);
     }
 }
