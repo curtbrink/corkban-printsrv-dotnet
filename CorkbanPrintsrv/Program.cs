@@ -21,7 +21,7 @@ builder.Services.Configure<QueueConfiguration>(builder.Configuration.GetSection(
 var queueConfig = builder.Configuration.GetSection(QueueConfiguration.SectionName).Get<QueueConfiguration>();
 if (string.IsNullOrWhiteSpace(queueConfig?.FilePath)) throw new ArgumentNullException(nameof(queueConfig.FilePath));
 var sqliteProvider = new SqliteProvider(queueConfig);
-await sqliteProvider.InitializeQueueAsync();
+await sqliteProvider.InitializeAsync();
 builder.Services.AddSingleton<ISqliteProvider>(sqliteProvider);
 
 // Add other services to the container.
