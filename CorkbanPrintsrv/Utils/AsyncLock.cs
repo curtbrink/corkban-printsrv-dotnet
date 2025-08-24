@@ -2,9 +2,9 @@ namespace CorkbanPrintsrv.Utils;
 
 public class AsyncLock
 {
+    private readonly IDisposable _releaserHandle;
     private readonly Task<IDisposable> _releaserTask;
     private readonly SemaphoreSlim _semaphore = new(1, 1);
-    private readonly IDisposable _releaserHandle;
 
     public AsyncLock()
     {

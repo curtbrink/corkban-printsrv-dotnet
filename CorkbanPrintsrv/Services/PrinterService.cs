@@ -9,7 +9,10 @@ public interface IPrinterService
     Task PrintImageAsync(string base64Image);
 }
 
-public class PrinterService(IPrinterProvider printerProvider, IImageService imageService, ISqliteProvider sqliteProvider) : IPrinterService
+public class PrinterService(
+    IPrinterProvider printerProvider,
+    IImageService imageService,
+    ISqliteProvider sqliteProvider) : IPrinterService
 {
     public async Task PrintTextAsync(string text)
     {

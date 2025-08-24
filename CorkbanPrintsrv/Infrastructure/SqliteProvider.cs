@@ -2,7 +2,6 @@ using CorkbanPrintsrv.Configuration;
 using CorkbanPrintsrv.DTOs;
 using CorkbanPrintsrv.Utils;
 using Microsoft.Data.Sqlite;
-using Microsoft.Extensions.Options;
 
 namespace CorkbanPrintsrv.Infrastructure;
 
@@ -16,29 +15,18 @@ public interface ISqliteProvider
 
     Task UpdateItemMessage(string itemId, string statusMessage);
 
+    Task<List<PrintQueueItem>> QueryIncompleteItemsBetween(DateTime startDate, DateTime endDate);
+
     Task<DateTime?> GetRetryJobLastRun(string jobId);
-    
+
     Task UpdateRetryJobLastRun(string jobId, DateTime lastRun);
-    // Task<List<PrintQueueItem>> GetIncompleteItems();
 }
 
 public class SqliteProvider(QueueConfiguration queueConfig) : ISqliteProvider
 {
+    private const int ChunkSize = 1024;
     private readonly string _connectionString = $"DataSource={queueConfig.FilePath}";
     private readonly AsyncLock _lock = new();
-
-    private const int ChunkSize = 1024;
-
-    public async Task InitializeAsync()
-    {
-        var queueCommand = new SqliteCommand(SqliteCommands.CreateQueueTable);
-        var retryCommand = new SqliteCommand(SqliteCommands.CreateRetryJobInfoTable);
-        using (await _lock.LockAsync())
-        {
-            await ExecuteNonQueryAsync(queueCommand);
-            await ExecuteNonQueryAsync(retryCommand);
-        }
-    }
 
     public async Task<PrintQueueItem> CreateItem(byte[] data)
     {
@@ -74,7 +62,7 @@ public class SqliteProvider(QueueConfiguration queueConfig) : ISqliteProvider
         {
             results = await ExecuteQueueItemQueryAsync(command);
         }
-        
+
         return results.Count > 0 ? results[0] : throw new KeyNotFoundException($"Item with id {itemId} not found");
     }
 
@@ -83,7 +71,7 @@ public class SqliteProvider(QueueConfiguration queueConfig) : ISqliteProvider
         var command = new SqliteCommand(SqliteCommands.CompleteItemById);
         command.Parameters.AddWithValue("$id", itemId);
         command.Parameters.AddWithValue("$completedTimestamp", DateTime.UtcNow);
-        
+
         await ExecuteNonQueryAsync(command);
     }
 
@@ -92,8 +80,17 @@ public class SqliteProvider(QueueConfiguration queueConfig) : ISqliteProvider
         var command = new SqliteCommand(SqliteCommands.UpdateMessageById);
         command.Parameters.AddWithValue("$id", itemId);
         command.Parameters.AddWithValue("$status", statusMessage);
-        
+
         await ExecuteNonQueryAsync(command);
+    }
+
+    public async Task<List<PrintQueueItem>> QueryIncompleteItemsBetween(DateTime startDate, DateTime endDate)
+    {
+        var command = new SqliteCommand(SqliteCommands.QueryIncompleteItemsBetweenDates);
+        command.Parameters.AddWithValue("$startDate", startDate);
+        command.Parameters.AddWithValue("$endDate", endDate);
+
+        return await ExecuteQueueItemQueryAsync(command);
     }
 
     public async Task<DateTime?> GetRetryJobLastRun(string jobId)
@@ -109,8 +106,19 @@ public class SqliteProvider(QueueConfiguration queueConfig) : ISqliteProvider
         var command = new SqliteCommand(SqliteCommands.UpdateRetryJobInfoLastRun);
         command.Parameters.AddWithValue("$id", jobId);
         command.Parameters.AddWithValue("$lastRun", lastRun);
-        
+
         await ExecuteNonQueryAsync(command);
+    }
+
+    public async Task InitializeAsync()
+    {
+        var queueCommand = new SqliteCommand(SqliteCommands.CreateQueueTable);
+        var retryCommand = new SqliteCommand(SqliteCommands.CreateRetryJobInfoTable);
+        using (await _lock.LockAsync())
+        {
+            await ExecuteNonQueryAsync(queueCommand);
+            await ExecuteNonQueryAsync(retryCommand);
+        }
     }
 
     private async Task<SqliteConnection> OpenConnectionAsync()
@@ -124,7 +132,7 @@ public class SqliteProvider(QueueConfiguration queueConfig) : ISqliteProvider
     {
         var conn = await OpenConnectionAsync();
         command.Connection = conn;
-        
+
         await command.ExecuteNonQueryAsync();
 
         await conn.DisposeAsync();
@@ -135,9 +143,9 @@ public class SqliteProvider(QueueConfiguration queueConfig) : ISqliteProvider
     {
         var conn = await OpenConnectionAsync();
         command.Connection = conn;
-        
+
         var reader = await command.ExecuteReaderAsync();
-        
+
         var items = await ParseQueueItemResultsAsync(reader);
 
         await conn.DisposeAsync();
@@ -151,15 +159,13 @@ public class SqliteProvider(QueueConfiguration queueConfig) : ISqliteProvider
     {
         var conn = await OpenConnectionAsync();
         command.Connection = conn;
-        
+
         var reader = await command.ExecuteReaderAsync();
 
         DateTime? result = null;
         if (await reader.ReadAsync())
-        {
             // row exists, grab last run time
             result = reader.GetDateTime(1);
-        }
 
         await conn.DisposeAsync();
         await command.DisposeAsync();
@@ -173,7 +179,6 @@ public class SqliteProvider(QueueConfiguration queueConfig) : ISqliteProvider
         var items = new List<PrintQueueItem>();
 
         while (await reader.ReadAsync())
-        {
             items.Add(new PrintQueueItem
             {
                 Id = reader.GetString(0),
@@ -182,17 +187,13 @@ public class SqliteProvider(QueueConfiguration queueConfig) : ISqliteProvider
                 Status = reader.IsDBNull(3) ? null : reader.GetString(3),
                 Data = GetBytes(reader, 4)
             });
-        }
 
         return items;
     }
 
     private static byte[]? GetBytes(SqliteDataReader reader, int columnPosition)
     {
-        if (reader.IsDBNull(columnPosition))
-        {
-            return null;
-        }
+        if (reader.IsDBNull(columnPosition)) return null;
 
         var buffer = new byte[ChunkSize];
         long bytesRead;

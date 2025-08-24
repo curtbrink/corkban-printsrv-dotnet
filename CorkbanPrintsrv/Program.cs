@@ -1,8 +1,8 @@
-using System.Text;
 using CorkbanPrintsrv.Auth;
 using CorkbanPrintsrv.Configuration;
 using CorkbanPrintsrv.DTOs;
 using CorkbanPrintsrv.Infrastructure;
+using CorkbanPrintsrv.Jobs;
 using CorkbanPrintsrv.Services;
 using CorkbanPrintsrv.Utils;
 using Microsoft.AspNetCore.Authorization;
@@ -28,6 +28,9 @@ builder.Services.AddSingleton<ISqliteProvider>(sqliteProvider);
 builder.Services.AddSingleton<IPrinterProvider, PrinterProvider>();
 builder.Services.AddScoped<IPrinterService, PrinterService>();
 builder.Services.AddScoped<IImageService, ImageService>();
+
+// Add jobs.
+builder.Services.AddHostedService<RetryJob>();
 
 builder.Services.AddAuthentication(ApiKeyAuthenticationSchemeOptions.DefaultScheme)
     .AddScheme<ApiKeyAuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(
@@ -64,7 +67,7 @@ app.MapGet("/test-db", async (ISqliteProvider sqlite) =>
     var testcmd = PrinterCommandBuilder.New().CenterAlign().PrintLine("This is a test, yo").PrintLine("Second line")
         .FeedLines(2).PartialCut().Build();
     Console.WriteLine(string.Join(", ", testcmd));
-    
+
     var stored = await sqlite.CreateItem(testcmd);
     Console.WriteLine(string.Join(", ", stored.Data!));
 

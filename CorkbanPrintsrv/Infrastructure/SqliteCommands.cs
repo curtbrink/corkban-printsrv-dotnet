@@ -43,18 +43,18 @@ public static class SqliteCommands
         WHERE id = $id;
         """;
 
-    // public const string QueryIncompleteItemsBetweenTimes =
-    //     """
-    //     SELECT *
-    //     FROM print_queue
-    //     WHERE completed_timestamp IS NULL
-    //     AND created_timestamp 
-    //     """;
-    
+    public const string QueryIncompleteItemsBetweenDates =
+        """
+        SELECT *
+        FROM print_queue
+        WHERE completed_timestamp IS NULL
+        AND created_timestamp BETWEEN $startDate AND $endDate;
+        """;
+
     /*
      * retry_job_info table commands
      */
-    
+
     public const string CreateRetryJobInfoTable =
         """
         CREATE TABLE IF NOT EXISTS retry_job_info (
