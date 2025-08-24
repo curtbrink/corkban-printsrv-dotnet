@@ -1,6 +1,8 @@
+using CorkbanPrintsrv.Auth;
 using CorkbanPrintsrv.Configuration;
 using CorkbanPrintsrv.DTOs;
 using CorkbanPrintsrv.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +18,11 @@ builder.Services.AddSingleton<IPrinterProvider, PrinterProvider>();
 builder.Services.AddScoped<IPrinterService, PrinterService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 
+builder.Services.AddAuthentication(ApiKeyAuthenticationSchemeOptions.DefaultScheme)
+    .AddScheme<ApiKeyAuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(
+        ApiKeyAuthenticationSchemeOptions.DefaultScheme, _ => { });
+builder.Services.AddAuthorization();
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
@@ -24,16 +31,21 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment()) app.MapOpenApi();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapPost("/print-text",
-    async ([FromBody] PrintTextRequest request, IPrinterService printerService) =>
+    [Authorize] async ([FromBody] PrintTextRequest request, IPrinterService printerService) =>
     {
         await printerService.PrintTextAsync(request.Text);
+        return Results.Ok();
     }).WithName("PrintText");
 
 app.MapPost("/print-image",
-    async ([FromBody] PrintImageRequest request, IPrinterService printerService) =>
+    [Authorize] async ([FromBody] PrintImageRequest request, IPrinterService printerService) =>
     {
         await printerService.PrintImageAsync(request.ImageData);
+        return Results.Ok();
     }).WithName("PrintImage");
 
 app.Run();
