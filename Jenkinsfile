@@ -10,6 +10,8 @@ pipeline {
         VERSION = "0.1";
         
         DOCKER_IMAGE_NAME = "curtbrink/${env.REPO_NAME}:v${env.VERSION}";
+        
+        CORKBAN_DATA_DIR = credentials('corkban-data-dir');
 
         Printer__Hostname = credentials('prod-printer-host');
         Printer__Port = credentials('prod-printer-port');
@@ -64,7 +66,7 @@ pipeline {
             steps {
                 script {
                     // recreate container with new image
-                    sh "docker run -d -p 34201:8080 -e Printer__Hostname -e Printer__Port -e Printer__SecretKey --mount type=volume,src=corkban-db,dst=/db --name ${env.REPO_NAME} ${env.DOCKER_IMAGE_NAME}"
+                    sh "docker run -d -p 34201:8080 -e Printer__Hostname -e Printer__Port -e Printer__SecretKey --mount type=bind,src=${env.CORKBAN_DATA_DIR},dst=/db --name ${env.REPO_NAME} ${env.DOCKER_IMAGE_NAME}"
                 }
             }
         }
