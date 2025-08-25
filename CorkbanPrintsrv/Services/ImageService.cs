@@ -15,12 +15,16 @@ public class ImageService : IImageService
         var stream = new ReadOnlySequence<byte>(Convert.FromBase64String(base64Image));
 
         using var imageIn = new MagickImage(stream);
-        imageIn.Format = MagickFormat.Bmp;
-        imageIn.Depth = 1;
         imageIn.Resize(576, 0);
-        imageIn.ColorType = ColorType.Bilevel;
 
-        var output = imageIn.ToByteArray();
+        using var imageOut = new MagickImage(new MagickColor("#FFFFFF"), imageIn.Width, imageIn.Height);
+        imageOut.Composite(imageIn, Gravity.Center, CompositeOperator.Over);
+        
+        imageOut.Format = MagickFormat.Bmp;
+        imageOut.Depth = 1;
+        imageOut.ColorType = ColorType.Bilevel;
+
+        var output = imageOut.ToByteArray();
 
         return output;
     }
