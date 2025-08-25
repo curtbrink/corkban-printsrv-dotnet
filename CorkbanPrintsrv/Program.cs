@@ -62,24 +62,4 @@ app.MapPost("/print-image",
         return Results.Ok();
     }).WithName("PrintImage");
 
-app.MapGet("/test-db", async (ISqliteProvider sqlite) =>
-{
-    var testcmd = PrinterCommandBuilder.New().CenterAlign().PrintLine("This is a test, yo").PrintLine("Second line")
-        .FeedLines(2).PartialCut().Build();
-    Console.WriteLine(string.Join(", ", testcmd));
-
-    var stored = await sqlite.CreateItem(testcmd);
-    Console.WriteLine(string.Join(", ", stored.Data!));
-
-    try
-    {
-        var queried = await sqlite.GetItem(stored.Id);
-        Console.WriteLine(string.Join(", ", queried.Data!));
-    }
-    catch (KeyNotFoundException e)
-    {
-        Console.WriteLine(e.Message);
-    }
-}).WithName("TestDbInsertion");
-
 app.Run();
