@@ -112,6 +112,10 @@ public class SqliteProvider(QueueConfiguration queueConfig) : ISqliteProvider
 
     public async Task InitializeAsync()
     {
+        if (!File.Exists(queueConfig.FilePath))
+        {
+            File.Create(queueConfig.FilePath);
+        }
         var queueCommand = new SqliteCommand(SqliteCommands.CreateQueueTable);
         var retryCommand = new SqliteCommand(SqliteCommands.CreateRetryJobInfoTable);
         using (await _lock.LockAsync())
