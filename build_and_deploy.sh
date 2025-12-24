@@ -45,9 +45,6 @@ else
 fi
 
 echo " > docker run"
-Printer__Hostname=$CORKBAN_PRINTER_HOST
-Printer__Port=$CORKBAN_PRINTER_PORT
-Printer__SecretKey=$SECRET_KEY
-sudo docker run -d -p 34201:8080 -e Printer__Hostname -e Printer__Port -e Printer__SecretKey --mount type=bind,src=$CORKBAN_DATA,dst=/db --name $REPO_NAME $DOCKER_IMAGE_NAME
+sudo docker run -d -p 34201:8080 -e Printer__Hostname=$CORKBAN_PRINTER_HOST -e Printer__Port=$CORKBAN_PRINTER_PORT -e Printer__SecretKey=$SECRET_KEY --mount type=bind,src=$CORKBAN_DATA,dst=/db --name $REPO_NAME $DOCKER_IMAGE_NAME
 
 echo " > done!"
