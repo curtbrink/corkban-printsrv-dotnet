@@ -1,6 +1,6 @@
-using CorkbanPrintsrv.Infrastructure;
+using Corkban.Printsrv.Infrastructure;
 
-namespace CorkbanPrintsrv.Jobs;
+namespace Corkban.Printsrv.Jobs;
 
 public class RetryJob(ISqliteProvider sqliteProvider, IPrinterProvider printerProvider) : BackgroundService
 {

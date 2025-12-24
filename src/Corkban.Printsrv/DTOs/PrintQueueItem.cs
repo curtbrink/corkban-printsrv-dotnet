@@ -1,4 +1,4 @@
-namespace CorkbanPrintsrv.DTOs;
+namespace Corkban.Printsrv.DTOs;
 
 public class PrintQueueItem
 {

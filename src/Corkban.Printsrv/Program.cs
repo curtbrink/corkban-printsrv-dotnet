@@ -1,10 +1,9 @@
-using CorkbanPrintsrv.Auth;
-using CorkbanPrintsrv.Configuration;
-using CorkbanPrintsrv.DTOs;
-using CorkbanPrintsrv.Infrastructure;
-using CorkbanPrintsrv.Jobs;
-using CorkbanPrintsrv.Services;
-using CorkbanPrintsrv.Utils;
+using Corkban.Printsrv.Auth;
+using Corkban.Printsrv.Configuration;
+using Corkban.Printsrv.DTOs;
+using Corkban.Printsrv.Infrastructure;
+using Corkban.Printsrv.Jobs;
+using Corkban.Printsrv.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

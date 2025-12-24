@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authentication;
 
-namespace CorkbanPrintsrv.Auth;
+namespace Corkban.Printsrv.Auth;
 
 public class ApiKeyAuthenticationSchemeOptions : AuthenticationSchemeOptions
 {

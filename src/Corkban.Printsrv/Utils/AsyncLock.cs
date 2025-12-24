@@ -1,4 +1,4 @@
-namespace CorkbanPrintsrv.Utils;
+namespace Corkban.Printsrv.Utils;
 
 public class AsyncLock
 {

@@ -1,7 +1,7 @@
-using CorkbanPrintsrv.Infrastructure;
-using CorkbanPrintsrv.Utils;
+using Corkban.Printsrv.Infrastructure;
+using Corkban.Printsrv.Utils;
 
-namespace CorkbanPrintsrv.Services;
+namespace Corkban.Printsrv.Services;
 
 public interface IPrinterService
 {

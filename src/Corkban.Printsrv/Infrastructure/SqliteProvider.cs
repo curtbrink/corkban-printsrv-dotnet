@@ -1,9 +1,9 @@
-using CorkbanPrintsrv.Configuration;
-using CorkbanPrintsrv.DTOs;
-using CorkbanPrintsrv.Utils;
+using Corkban.Printsrv.Configuration;
+using Corkban.Printsrv.DTOs;
+using Corkban.Printsrv.Utils;
 using Microsoft.Data.Sqlite;
 
-namespace CorkbanPrintsrv.Infrastructure;
+namespace Corkban.Printsrv.Infrastructure;
 
 public interface ISqliteProvider
 {

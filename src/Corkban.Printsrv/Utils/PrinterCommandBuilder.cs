@@ -1,7 +1,7 @@
 using ESCPOS_NET.Emitters;
 using ESCPOS_NET.Utilities;
 
-namespace CorkbanPrintsrv.Utils;
+namespace Corkban.Printsrv.Utils;
 
 public class PrinterCommandBuilder
 {
