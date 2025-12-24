@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CorkbanPrintsrv", "CorkbanPrintsrv\CorkbanPrintsrv.csproj", "{42A20980-70C4-4A8C-95EB-8A2DDE5DDB1A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Corkban.Printsrv", "src\Corkban.Printsrv\Corkban.Printsrv.csproj", "{42A20980-70C4-4A8C-95EB-8A2DDE5DDB1A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
