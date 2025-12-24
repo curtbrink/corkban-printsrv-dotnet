@@ -1,4 +1,4 @@
-namespace CorkbanPrintsrv.Infrastructure;
+namespace Corkban.Printsrv.Infrastructure;
 
 public static class SqliteCommands
 {

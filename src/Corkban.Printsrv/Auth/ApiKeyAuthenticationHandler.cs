@@ -1,10 +1,10 @@
 using System.Security.Claims;
 using System.Text.Encodings.Web;
-using CorkbanPrintsrv.Configuration;
+using Corkban.Printsrv.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 
-namespace CorkbanPrintsrv.Auth;
+namespace Corkban.Printsrv.Auth;
 
 public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthenticationSchemeOptions>
 {

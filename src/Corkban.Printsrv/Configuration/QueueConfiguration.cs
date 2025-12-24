@@ -1,4 +1,4 @@
-namespace CorkbanPrintsrv.Configuration;
+namespace Corkban.Printsrv.Configuration;
 
 public class QueueConfiguration
 {

@@ -1,7 +1,7 @@
 using System.Buffers;
 using ImageMagick;
 
-namespace CorkbanPrintsrv.Services;
+namespace Corkban.Printsrv.Services;
 
 public interface IImageService
 {

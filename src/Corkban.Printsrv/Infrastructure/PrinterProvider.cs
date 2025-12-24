@@ -1,9 +1,9 @@
-using CorkbanPrintsrv.Configuration;
-using CorkbanPrintsrv.Utils;
+using Corkban.Printsrv.Configuration;
+using Corkban.Printsrv.Utils;
 using ESCPOS_NET;
 using Microsoft.Extensions.Options;
 
-namespace CorkbanPrintsrv.Infrastructure;
+namespace Corkban.Printsrv.Infrastructure;
 
 public interface IPrinterProvider
 {
